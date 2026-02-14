@@ -1,10 +1,10 @@
 package yandex;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -12,12 +12,21 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static helpers.properties.Properties.mainProperties;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class YandexMarket_PageObject {
 
     public YandexMarket_PageObject(WebDriver wd) {
         chromedriver = wd;
+    }
+
+    /**
+     * Позволяет фейлить тесты без org.junit.jupiter.api.Assertions.fail
+     *
+     * @param condition на будущее переменная
+     * @param message   бъясняем причину провала
+     */
+    private void assertTrueOrThrow(boolean condition, String message) {
+        if (!condition) throw new AssertionError(message);
     }
 
     /**
@@ -103,10 +112,11 @@ public class YandexMarket_PageObject {
         String minS = Integer.toString(min);
         String maxS = Integer.toString(max);
         waitForVisibilityOfOneElement(textFieldPriceMin, mainProperties.defaultTimeout30());
-       // wait.until(ExpectedConditions.)
+        // wait.until(ExpectedConditions.)
 
         chromedriver.findElement(By.xpath(textFieldPriceMin)).click();
-        chromedriver.findElement(By.xpath(textFieldPriceMin)).sendKeys(minS);;
+        chromedriver.findElement(By.xpath(textFieldPriceMin)).sendKeys(minS);
+        ;
 
         waitForTextToBePresent(textFieldPriceMin, minS, mainProperties.defaultTimeout30());
 
@@ -135,7 +145,10 @@ public class YandexMarket_PageObject {
                     break;
                 } else {
                     if (k == (m.length - 1)) {
-                        fail("Наименование \"" + naimenovanie + "\" не содержит ни одного имени производителя из искомых");
+                        assertTrueOrThrow(
+                                false,
+                                "Наименование \"" + naimenovanie +
+                                        "\" не содержит ни одного имени производителя из искомых");    //fail("Наименование \"" + naimenovanie + "\" не содержит ни одного имени производителя из искомых");
                         return false;
                     }
                     continue;
@@ -166,7 +179,9 @@ public class YandexMarket_PageObject {
                         .getText().replaceAll("\\s+", ""));
             }
             if (price < min || price > max) {
-                fail("Цена \"" + price + "\" не соотвтетствует диапазону от " + min + " до " + max);
+                assertTrueOrThrow(false,
+                        "Цена \"" + price +
+                                "\" не соотвтетствует диапазону от " + min + " до " + max);
             }
         }
         return true;
