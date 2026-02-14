@@ -6,6 +6,8 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +32,7 @@ public class BaseTest {
     public void beforeEach() {
         System.setProperty(mainProperties.browser(), System.getenv(mainProperties.driver()));
 
-        ChromeOptions options = new ChromeOptions();
+        EdgeOptions options = new EdgeOptions();
         options.addArguments("--disable-blink-features=AutomationControlled");  // Скрывает автоматизацию
         options.setExperimentalOption("excludeSwitches", Arrays.asList("enable-automation"));
         options.setExperimentalOption("useAutomationExtension", false);
@@ -38,7 +40,7 @@ public class BaseTest {
         options.addArguments("--no-sandbox", "--disable-dev-shm-usage");  // Для headless, если используете
         options.addArguments("--disable-extensions");  // Отключает расширения
 
-        chromedriver = new ChromeDriver(options);
+        chromedriver = new EdgeDriver(options);
         ((JavascriptExecutor) chromedriver).executeScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");  // JS-патч для скрытия webdriver
 
         chromedriver.manage().window().maximize();
