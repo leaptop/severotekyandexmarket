@@ -1,5 +1,6 @@
 package yandex;
 
+import helpers.CookieHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -27,7 +28,9 @@ public class SeverotekYandexMarket extends BaseTest {
     public void mainTest(int min, int max, String mainMenu, String additionalMenu, String m1) throws InterruptedException {
         chromedriver.get(mainProperties.baseUrl());
         YandexMarket_PageObject ympo = new YandexMarket_PageObject(chromedriver);
+        CookieHandler ck = new CookieHandler(chromedriver);
         ympo.pushCatalogueButton();
+        ck.handleCookieBanner();
         ympo.selectMainPopUpElement(mainMenu);
         ympo.pushSecondaryMenuButton(additionalMenu);
         ympo.setManufacturersUniversal(m1);

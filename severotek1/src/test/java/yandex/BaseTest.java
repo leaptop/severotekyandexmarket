@@ -8,8 +8,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static helpers.properties.Properties.mainProperties;
@@ -53,7 +51,7 @@ public class BaseTest {
      * Метод запускается после каждого теста.
      * Закрывает браузер и завершает тест.
      */
-    @AfterEach
+   // @AfterEach
     public void closeBellTest() {
         chromedriver.quit();
     }

@@ -1,13 +1,11 @@
 package yandex;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +30,8 @@ public class YandexMarket_PageObject {
     /**
      * Нажимает кнопку "Каталог"
      */
-    public void pushCatalogueButton() {
+    public void pushCatalogueButton() throws InterruptedException {
+        Thread.sleep((long)(Math.random()*5000));
         chromedriver.findElement(By.xpath("//div[@id=\"/content/header/header/catalogEntrypoint\"]")).click();
     }
 
@@ -78,7 +77,7 @@ public class YandexMarket_PageObject {
                 }
                 chromedriver.manage().timeouts().implicitlyWait(mainProperties.defaultTimeout30(), TimeUnit.SECONDS);
                 chromedriver.findElement(By.xpath(xpathForManufacturerInputTextField)).sendKeys(mi);
-                WebDriverWait wait = new WebDriverWait(chromedriver, mainProperties.timeoutShort5());
+                WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(mainProperties.timeoutShort5()));
                 wait.until(ExpectedConditions.textToBePresentInElementValue(chromedriver.findElement(By.xpath
                         (xpathForManufacturerInputTextField)), mi));
                 chromedriver.findElement(By.xpath(
@@ -108,7 +107,7 @@ public class YandexMarket_PageObject {
      * @param max цена "до"
      */
     public void setPrices(int min, int max) throws InterruptedException {
-        WebDriverWait wait = new WebDriverWait(chromedriver, mainProperties.defaultTimeout30());
+        WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(mainProperties.defaultTimeout30()));
         String minS = Integer.toString(min);
         String maxS = Integer.toString(max);
         waitForVisibilityOfOneElement(textFieldPriceMin, mainProperties.defaultTimeout30());
@@ -192,7 +191,7 @@ public class YandexMarket_PageObject {
      * @param timeout время, которое ждём в секундах
      */
     public void waitForVisibilityOfAllElements(String xpath, int timeout) {
-        WebDriverWait wait = new WebDriverWait(chromedriver, timeout);
+        WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(timeout));
         wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath(xpath)));
     }
 
@@ -201,7 +200,7 @@ public class YandexMarket_PageObject {
      * @param timeoutInSeconds время, которое ждём в секундах
      */
     public void waitForVisibilityOfOneElement(String xpath, int timeoutInSeconds) {
-        WebDriverWait wait = new WebDriverWait(chromedriver, timeoutInSeconds);
+        WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(timeoutInSeconds));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
     }
 
@@ -209,7 +208,7 @@ public class YandexMarket_PageObject {
      *
      */
     public void waitForTextToBePresent(String xpath, String text, int timeoutInSeconds) {
-        WebDriverWait wait = new WebDriverWait(chromedriver, timeoutInSeconds);
+        WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(timeoutInSeconds));
         wait.until(ExpectedConditions.textToBePresentInElementValue(By.xpath(xpath), text));
     }
 
@@ -260,6 +259,19 @@ public class YandexMarket_PageObject {
         for (int i = 0; i < numberOfTimes; i++) {
             chromedriver.findElement(By.xpath(whereToXPath)).sendKeys(Keys.PAGE_DOWN);
         }
+    }
+
+    public void clickAllowEssentialCookies() {
+        chromedriver.findElement(By.xpath(
+                        "//div[(text()='Allow essential cookies') and @id='gdpr-popup-v3-button-mandatory']"))
+                .click();
+        try {
+            WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(5));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("cookie-accept"))).click();
+        } catch (TimeoutException e) {
+            System.out.println("Окно куки не появилось");
+        }
+
     }
 
     /**
