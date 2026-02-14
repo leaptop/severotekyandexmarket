@@ -24,7 +24,7 @@ public class YandexMarket_PageObject {
      * Нажимает кнопку "Каталог"
      */
     public void pushCatalogueButton() {
-        chromedriver.findElement(By.xpath("//button[@aria-label='Каталог']")).click();
+        chromedriver.findElement(By.xpath("//div[@id=\"/content/header/header/catalogEntrypoint\"]")).click();
     }
 
     /**
