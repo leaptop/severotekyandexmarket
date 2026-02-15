@@ -24,13 +24,13 @@ public class SeverotekYandexMarket extends BaseTest {
      * @param m1             производитель № 1
      */
     @ParameterizedTest(name = "{displayName} {arguments}")
-    @CsvSource("25000, 30000, Компьютеры, Ноутбуки, Lenovo")
+    @CsvSource("25000, 30000, Ноутбуки и компьютеры, Ноутбуки, Lenovo")
     public void mainTest(int min, int max, String mainMenu, String additionalMenu, String m1) throws InterruptedException {
-        chromedriver.get(mainProperties.baseUrl());
-        YandexMarket_PageObject ympo = new YandexMarket_PageObject(chromedriver);
-        CookieHandler ck = new CookieHandler(chromedriver);
-        ympo.pushCatalogueButton();
+        webDriver.get(mainProperties.baseUrl());
+        CookieHandler ck = new CookieHandler(webDriver);
         ck.handleCookieBanner();
+        YandexMarket_PageObject ympo = new YandexMarket_PageObject(webDriver);
+        ympo.pushCatalogueButton();
         ympo.selectMainPopUpElement(mainMenu);
         ympo.pushSecondaryMenuButton(additionalMenu);
         ympo.setManufacturersUniversal(m1);

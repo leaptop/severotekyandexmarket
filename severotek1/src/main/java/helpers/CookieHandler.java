@@ -8,14 +8,14 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 public class CookieHandler {
-    private WebDriver driver;
+    private WebDriver webDriver;
 
-    public CookieHandler(WebDriver driver) {
-        this.driver = driver;
+    public CookieHandler(WebDriver webDriver) {
+        this.webDriver = webDriver;
     }
 
     public void handleCookieBanner() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));  // Таймаут 10 сек
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));  // Таймаут 10 сек
 
         try {
             // Ждем, пока элемент станет кликабельным (если он появится)

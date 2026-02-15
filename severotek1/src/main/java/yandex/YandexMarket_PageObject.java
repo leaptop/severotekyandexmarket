@@ -14,7 +14,7 @@ import static helpers.properties.Properties.mainProperties;
 public class YandexMarket_PageObject {
 
     public YandexMarket_PageObject(WebDriver wd) {
-        chromedriver = wd;
+        webDriver = wd;
     }
 
     /**
@@ -32,7 +32,23 @@ public class YandexMarket_PageObject {
      */
     public void pushCatalogueButton() throws InterruptedException {
         Thread.sleep((long)(Math.random()*5000));
-        chromedriver.findElement(By.xpath("//div[@id=\"/content/header/header/catalogEntrypoint\"]")).click();
+
+        // Новый XPath: ищет по тексту или data-test-id (актуально на 2026)
+        WebElement catalogButton = webDriver.findElement(By.xpath(
+                "//div[@id=\"/content/header/header/catalogEntrypoint\"]"
+        ));
+
+        // Используйте Actions для симуляции реального клика (лучше, чем прямой .click())
+        Actions actions = new Actions(webDriver);
+        actions.moveToElement(catalogButton).pause((long)(Math.random()*6000)).click().build().perform();
+
+        ((JavascriptExecutor) webDriver).executeScript(
+                "arguments[0].scrollIntoView(true); window.dispatchEvent(new Event('scroll'));",
+                webDriver.findElement(By.id("catalogPopup"))
+        );
+        Thread.sleep(2000);  // Дать JS время
+
+       // chromedriver.findElement(By.xpath("//div[@id=\"/content/header/header/catalogEntrypoint\"]")).click();
     }
 
     /**
@@ -41,10 +57,10 @@ public class YandexMarket_PageObject {
      * @param name имя элемента (кнопки)
      */
     public void selectMainPopUpElement(String name) {
-        WebElement we = chromedriver.findElement(By.xpath(
-                "//div[@id='catalogPopup']//ul/li/a/*[contains(text(),'" + name + "')]"));
-        Actions act = new Actions(chromedriver);
-        act.moveToElement(we).perform();
+        WebElement we = webDriver.findElement(By.xpath(
+                "//span[contains(text(),'"+ name + "')]"));
+        Actions act = new Actions(webDriver);
+        act.moveToElement(we).pause((long)(Math.random()*5000)).perform();
     }
 
     /**
@@ -53,7 +69,7 @@ public class YandexMarket_PageObject {
      * @param name имя ссылки в меню справа
      */
     public void pushSecondaryMenuButton(String name) {
-        chromedriver.findElement(By.xpath(
+        webDriver.findElement(By.xpath(
                 "//div[@role='heading'and @aria-level='2']//a[text()='" + name + "']")).click();
     }
 
@@ -67,34 +83,34 @@ public class YandexMarket_PageObject {
      * @param m массив имён производителей для проставления галочек
      */
     public void setManufacturersUniversal(String... m) {
-        chromedriver.findElement(By.xpath(showAllManufacturersButtonXPath)).click();
+        webDriver.findElement(By.xpath(showAllManufacturersButtonXPath)).click();
         waitForVisibilityOfOneElement(manufacturersWindowGeneral, mainProperties.defaultTimeout30());
         for (String mi : m) {
-            chromedriver.manage().timeouts().implicitlyWait(mainProperties.timeoutShort2(), TimeUnit.SECONDS);
-            if (!chromedriver.findElements(By.xpath(xpathForManufacturerInputTextField)).isEmpty()) {
-                if (!chromedriver.findElements(By.xpath(clearManufacturersSearchFieldButton)).isEmpty()) {
-                    chromedriver.findElement(By.xpath(clearManufacturersSearchFieldButton)).click();
+            webDriver.manage().timeouts().implicitlyWait(mainProperties.timeoutShort2(), TimeUnit.SECONDS);
+            if (!webDriver.findElements(By.xpath(xpathForManufacturerInputTextField)).isEmpty()) {
+                if (!webDriver.findElements(By.xpath(clearManufacturersSearchFieldButton)).isEmpty()) {
+                    webDriver.findElement(By.xpath(clearManufacturersSearchFieldButton)).click();
                 }
-                chromedriver.manage().timeouts().implicitlyWait(mainProperties.defaultTimeout30(), TimeUnit.SECONDS);
-                chromedriver.findElement(By.xpath(xpathForManufacturerInputTextField)).sendKeys(mi);
-                WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(mainProperties.timeoutShort5()));
-                wait.until(ExpectedConditions.textToBePresentInElementValue(chromedriver.findElement(By.xpath
+                webDriver.manage().timeouts().implicitlyWait(mainProperties.defaultTimeout30(), TimeUnit.SECONDS);
+                webDriver.findElement(By.xpath(xpathForManufacturerInputTextField)).sendKeys(mi);
+                WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(mainProperties.timeoutShort5()));
+                wait.until(ExpectedConditions.textToBePresentInElementValue(webDriver.findElement(By.xpath
                         (xpathForManufacturerInputTextField)), mi));
-                chromedriver.findElement(By.xpath(
+                webDriver.findElement(By.xpath(
                         "// label[text()='Найти производителя']/following-sibling::input/../../../following-sibling::div//span[text()='"
                                 + mi + "']")).click();
             } else {
                 waitForVisibilityOfOneElement(manufacturersWindowGeneral, mainProperties.defaultTimeout30());
-                chromedriver.findElement(By.xpath(
+                webDriver.findElement(By.xpath(
                         "//div[contains(@data-zone-data,'Производитель')]/fieldset//span[text()='" + mi + "']")).click();
             }
             waitForVisibilityOfOneElement(foundNumberOfProductsTip, mainProperties.defaultTimeout30());
-            chromedriver.manage().timeouts().implicitlyWait(mainProperties.timeoutShort2(), TimeUnit.SECONDS);
-            if (!chromedriver.findElements(By.xpath(showAllManufacturersButtonXPath)).isEmpty()) {
-                chromedriver.findElement(By.xpath(showAllManufacturersButtonXPath)).click();
-                chromedriver.manage().timeouts().implicitlyWait(mainProperties.defaultTimeout30(), TimeUnit.SECONDS);
+            webDriver.manage().timeouts().implicitlyWait(mainProperties.timeoutShort2(), TimeUnit.SECONDS);
+            if (!webDriver.findElements(By.xpath(showAllManufacturersButtonXPath)).isEmpty()) {
+                webDriver.findElement(By.xpath(showAllManufacturersButtonXPath)).click();
+                webDriver.manage().timeouts().implicitlyWait(mainProperties.defaultTimeout30(), TimeUnit.SECONDS);
             } else {
-                chromedriver.manage().timeouts().implicitlyWait(mainProperties.defaultTimeout30(), TimeUnit.SECONDS);
+                webDriver.manage().timeouts().implicitlyWait(mainProperties.defaultTimeout30(), TimeUnit.SECONDS);
                 continue;
             }
         }
@@ -107,20 +123,20 @@ public class YandexMarket_PageObject {
      * @param max цена "до"
      */
     public void setPrices(int min, int max) throws InterruptedException {
-        WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(mainProperties.defaultTimeout30()));
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(mainProperties.defaultTimeout30()));
         String minS = Integer.toString(min);
         String maxS = Integer.toString(max);
         waitForVisibilityOfOneElement(textFieldPriceMin, mainProperties.defaultTimeout30());
         // wait.until(ExpectedConditions.)
 
-        chromedriver.findElement(By.xpath(textFieldPriceMin)).click();
-        chromedriver.findElement(By.xpath(textFieldPriceMin)).sendKeys(minS);
+        webDriver.findElement(By.xpath(textFieldPriceMin)).click();
+        webDriver.findElement(By.xpath(textFieldPriceMin)).sendKeys(minS);
         ;
 
         waitForTextToBePresent(textFieldPriceMin, minS, mainProperties.defaultTimeout30());
 
         waitForVisibilityOfOneElement(textFieldPriceMax, mainProperties.defaultTimeout30());
-        WebElement priceMax = chromedriver.findElement(By.xpath(textFieldPriceMax));
+        WebElement priceMax = webDriver.findElement(By.xpath(textFieldPriceMax));
         priceMax.sendKeys(maxS, Keys.ENTER);
         waitForTextToBePresent(textFieldPriceMax, maxS, mainProperties.defaultTimeout30());
         waitForVisibilityOfOneElement(foundNumberOfProductsTip, mainProperties.defaultTimeout30());
@@ -132,7 +148,7 @@ public class YandexMarket_PageObject {
     public boolean checkManufacturers(String... m) {
         pressPGDNButton(20, "//html");
         waitForVisibilityOfAllElements("//article//h3", mainProperties.defaultTimeout30());
-        List<WebElement> articles = chromedriver.findElements(By.xpath("//article"));
+        List<WebElement> articles = webDriver.findElements(By.xpath("//article"));
         for (int i = 0; i < articles.size(); i++) {
             List<WebElement> spansInArticle = articles.get(i).findElements(By.xpath(possiblyDisintegratedNameOfProductAfterSearch));
             String naimenovanie = "";
@@ -167,10 +183,10 @@ public class YandexMarket_PageObject {
     public boolean checkPrices(int min, int max) {
         pressPGDNButton(20, "//html");
         waitForVisibilityOfAllElements("//article//h3", mainProperties.defaultTimeout30());
-        List<WebElement> articles = chromedriver.findElements(By.xpath("//article"));
+        List<WebElement> articles = webDriver.findElements(By.xpath("//article"));
         for (int i = 0; i < articles.size(); i++) {
             int price = -1;
-            chromedriver.manage().timeouts().implicitlyWait(100, TimeUnit.MILLISECONDS);
+            webDriver.manage().timeouts().implicitlyWait(100, TimeUnit.MILLISECONDS);
             if (!articles.get(i).findElements(By.xpath(
                     ".//div[@data-zone-name='price']//span[@data-auto='mainPrice']/span[1]")).isEmpty()) {
                 price = Integer.parseInt(articles.get(i).findElement(By.xpath(
@@ -191,7 +207,7 @@ public class YandexMarket_PageObject {
      * @param timeout время, которое ждём в секундах
      */
     public void waitForVisibilityOfAllElements(String xpath, int timeout) {
-        WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(timeout));
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(timeout));
         wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath(xpath)));
     }
 
@@ -200,7 +216,7 @@ public class YandexMarket_PageObject {
      * @param timeoutInSeconds время, которое ждём в секундах
      */
     public void waitForVisibilityOfOneElement(String xpath, int timeoutInSeconds) {
-        WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(timeoutInSeconds));
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(timeoutInSeconds));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
     }
 
@@ -208,14 +224,14 @@ public class YandexMarket_PageObject {
      *
      */
     public void waitForTextToBePresent(String xpath, String text, int timeoutInSeconds) {
-        WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(timeoutInSeconds));
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(timeoutInSeconds));
         wait.until(ExpectedConditions.textToBePresentInElementValue(By.xpath(xpath), text));
     }
 
     /**
      * вебдрайвер для работы с браузером.
      */
-    public WebDriver chromedriver;
+    public WebDriver webDriver;
 
     /**
      * Окошко, показывающее, что определённое количество товара было найдено.
@@ -257,21 +273,31 @@ public class YandexMarket_PageObject {
      */
     public void pressPGDNButton(int numberOfTimes, String whereToXPath) {
         for (int i = 0; i < numberOfTimes; i++) {
-            chromedriver.findElement(By.xpath(whereToXPath)).sendKeys(Keys.PAGE_DOWN);
+            webDriver.findElement(By.xpath(whereToXPath)).sendKeys(Keys.PAGE_DOWN);
         }
     }
 
     public void clickAllowEssentialCookies() {
-        chromedriver.findElement(By.xpath(
+        webDriver.findElement(By.xpath(
                         "//div[(text()='Allow essential cookies') and @id='gdpr-popup-v3-button-mandatory']"))
                 .click();
         try {
-            WebDriverWait wait = new WebDriverWait(chromedriver, Duration.ofSeconds(5));
+            WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("cookie-accept"))).click();
         } catch (TimeoutException e) {
             System.out.println("Окно куки не появилось");
         }
 
+    }
+
+    /**
+     * Ищем по поиску
+     */
+    public void search(String searchString) {
+        if (searchString != null) {
+            webDriver.findElement(By.xpath("//input[@id='header-search']"))
+                    .sendKeys(searchString, Keys.ENTER);
+        }
     }
 
     /**
